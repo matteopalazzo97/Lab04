@@ -38,6 +38,9 @@ public class CorsoDAO {
 
 				// Crea un nuovo JAVA Bean Corso
 				// Aggiungi il nuovo oggetto Corso alla lista corsi
+				
+				Corso c = new Corso(codins, numeroCrediti, nome, periodoDidattico);
+				corsi.add(c);
 			}
 
 			conn.close();
@@ -62,8 +65,46 @@ public class CorsoDAO {
 	/*
 	 * Ottengo tutti gli studenti iscritti al Corso
 	 */
-	public void getStudentiIscrittiAlCorso(Corso corso) {
-		// TODO
+	public List<Studente> getStudentiIscrittiAlCorso(Corso corso) {
+		
+		List<Studente> studentiCorso = new LinkedList<Studente>();
+		Studente s = null;
+		
+		final String sql = "SELECT s.`matricola`, s.`cognome`, s.`nome`, s.`CDS` " 
+				+ "FROM studente s, corso c, iscrizione i "
+				+ "WHERE s.`matricola` = i.`matricola` AND c.`codins` = i.`codins` "
+				+ "AND c.`nome` = ?";
+		
+		
+		try {
+			
+			Connection conn = ConnectDB.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setString(1, corso.getNome());
+			
+			ResultSet rs = st.executeQuery();
+			
+			while(rs.next()) {
+				
+				s = new Studente(rs.getInt("matricola"), rs.getString("cognome"), rs.getString("nome"),
+						rs.getString("CDS"));
+				studentiCorso.add(s);
+				
+			}
+			
+			System.out.println(corso.getNome() + " " + corso.getCodIns() + " " + corso.getCrediti()
+			 + " " + corso.getPd());
+			
+			conn.close();
+			
+			
+		} catch (SQLException e) {
+			System.out.println("Errore DB.");
+		}
+		return studentiCorso;
+		
+		
+		
 	}
 
 	/*
